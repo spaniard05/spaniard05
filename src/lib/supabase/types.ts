@@ -206,6 +206,24 @@ export interface Database {
         >;
         Relationships: [];
       };
+      daily_briefs: {
+        Row: {
+          id: string;
+          user_id: string;
+          brief_date: string;
+          content: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          brief_date: string;
+          content: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["daily_briefs"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

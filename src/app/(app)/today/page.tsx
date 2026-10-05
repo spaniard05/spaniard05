@@ -1,8 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth/session";
 import { listAssignmentsDueBefore } from "@/lib/data/assignments";
 import { listOpenTasksDueBefore } from "@/lib/data/tasks";
 import { getWorkoutForDate } from "@/lib/data/workouts";
 import { listMealsBetween } from "@/lib/data/meals";
+import { getBriefForDate, saveBriefForDate } from "@/lib/data/daily-briefs";
+import { generateDailyBrief } from "@/lib/ai/recommendations";
 import {
   daysFromNowIso,
   endOfTodayIso,
@@ -14,18 +17,61 @@ import {
 import { Section } from "@/components/ui/section";
 import { EmptyState } from "@/components/ui/empty-state";
 
+async function getTodaysBrief(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  date: string,
+  context: Parameters<typeof generateDailyBrief>[0]
+): Promise<string | null> {
+  const cached = await getBriefForDate(supabase, date);
+  if (cached) return cached.content;
+
+  const content = await generateDailyBrief(context);
+  if (content) {
+    await saveBriefForDate(supabase, userId, date, content);
+  }
+  return content;
+}
+
 export default async function TodayPage() {
   const supabase = await createClient();
+  const user = await getCurrentUser();
+  const date = todayDateString();
+
   const [assignments, tasks, workout, meals] = await Promise.all([
     listAssignmentsDueBefore(supabase, daysFromNowIso(7)),
     listOpenTasksDueBefore(supabase, endOfTodayIso()),
-    getWorkoutForDate(supabase, todayDateString()),
+    getWorkoutForDate(supabase, date),
     listMealsBetween(supabase, startOfTodayIso(), endOfTodayIso()),
   ]);
+
+  const brief = user
+    ? await getTodaysBrief(supabase, user.id, date, {
+        assignmentsDueSoon: assignments.map((a) => ({
+          title: a.title,
+          course: a.courses?.name ?? null,
+          due: a.due_at,
+        })),
+        tasksDueOrOverdue: tasks.map((t) => ({ title: t.title, due: t.due_at })),
+        todaysWorkout: workout
+          ? { title: workout.title, setCount: workout.workout_sets.length }
+          : null,
+        mealsLoggedToday: meals.length,
+      })
+    : null;
 
   return (
     <div>
       <h1 className="mb-4 text-xl font-semibold text-slate-900">Today</h1>
+
+      {brief && (
+        <div className="mb-6 rounded-xl border border-brand-100 bg-brand-50 p-4">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-brand-600">
+            Today&apos;s brief
+          </p>
+          <p className="whitespace-pre-line text-sm text-slate-700">{brief}</p>
+        </div>
+      )}
 
       <Section title="Assignments due soon">
         {assignments.length === 0 ? (
