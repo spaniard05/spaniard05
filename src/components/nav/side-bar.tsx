@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "./nav-items";
-import { LogOutIcon } from "./icons";
+import { LogOutIcon, SettingsIcon } from "./icons";
 import { signOut } from "@/lib/auth/actions";
 
 export function SideBar({ userEmail }: { userEmail?: string | null }) {
@@ -43,6 +43,22 @@ export function SideBar({ userEmail }: { userEmail?: string | null }) {
           );
         })}
       </nav>
+
+      <Link
+        href="/settings"
+        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+          pathname.startsWith("/settings")
+            ? "bg-brand-50 text-brand-700"
+            : "text-slate-600 hover:bg-slate-100"
+        }`}
+      >
+        <SettingsIcon
+          className={`h-5 w-5 ${
+            pathname.startsWith("/settings") ? "text-brand-600" : "text-slate-400"
+          }`}
+        />
+        Settings
+      </Link>
 
       <form action={signOut}>
         <button

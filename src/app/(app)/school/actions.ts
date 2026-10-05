@@ -5,6 +5,7 @@ import { requireUserAndClient } from "@/lib/auth/session";
 import { createCourse } from "@/lib/data/courses";
 import { createAssignment, updateAssignmentStatus } from "@/lib/data/assignments";
 import { parseOptionalIso, parseOptionalText, requireText } from "@/lib/forms";
+import { syncAssignmentToCalendar } from "@/lib/google/sync";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 import type { FormState } from "@/components/ui/action-form";
 
@@ -43,12 +44,13 @@ export async function addAssignmentAction(
     const title = requireText(formData.get("title"));
     const courseId = requireText(formData.get("courseId"));
 
-    await createAssignment(supabase, user.id, {
+    const assignment = await createAssignment(supabase, user.id, {
       course_id: courseId,
       title,
       due_at: parseOptionalIso(formData.get("dueAt")),
       notes: parseOptionalText(formData.get("notes")),
     });
+    await syncAssignmentToCalendar(supabase, user.id, assignment);
 
     revalidateSchool();
     return { error: null };
@@ -58,7 +60,8 @@ export async function addAssignmentAction(
 }
 
 export async function setAssignmentStatus(id: string, status: AssignmentStatus) {
-  const { supabase } = await requireUserAndClient();
-  await updateAssignmentStatus(supabase, id, status);
+  const { user, supabase } = await requireUserAndClient();
+  const assignment = await updateAssignmentStatus(supabase, id, status);
+  await syncAssignmentToCalendar(supabase, user.id, assignment);
   revalidateSchool();
 }

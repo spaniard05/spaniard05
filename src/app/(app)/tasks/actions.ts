@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireUserAndClient } from "@/lib/auth/session";
 import { createTask, updateTaskStatus } from "@/lib/data/tasks";
 import { parseOptionalIso, parseOptionalText, requireText } from "@/lib/forms";
+import { syncTaskToCalendar } from "@/lib/google/sync";
 import type { TaskPriority, TaskStatus } from "@/lib/supabase/types";
 import type { FormState } from "@/components/ui/action-form";
 
@@ -26,13 +27,14 @@ export async function addTaskAction(
     const { user, supabase } = await requireUserAndClient();
     const title = requireText(formData.get("title"));
 
-    await createTask(supabase, user.id, {
+    const task = await createTask(supabase, user.id, {
       title,
       due_at: parseOptionalIso(formData.get("dueAt")),
       priority: parsePriority(formData.get("priority")),
       recurring: parseOptionalText(formData.get("recurring")),
       notes: parseOptionalText(formData.get("notes")),
     });
+    await syncTaskToCalendar(supabase, user.id, task);
 
     revalidateTasks();
     return { error: null };
@@ -42,7 +44,8 @@ export async function addTaskAction(
 }
 
 export async function setTaskStatus(id: string, status: TaskStatus) {
-  const { supabase } = await requireUserAndClient();
-  await updateTaskStatus(supabase, id, status);
+  const { user, supabase } = await requireUserAndClient();
+  const task = await updateTaskStatus(supabase, id, status);
+  await syncTaskToCalendar(supabase, user.id, task);
   revalidateTasks();
 }
