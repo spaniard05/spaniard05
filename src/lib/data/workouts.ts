@@ -11,7 +11,7 @@ export type NewWorkout = Pick<
 >;
 export type NewWorkoutSet = Pick<
   Database["public"]["Tables"]["workout_sets"]["Insert"],
-  "workout_id" | "exercise" | "reps" | "weight" | "set_order"
+  "workout_id" | "exercise" | "reps" | "weight" | "set_order" | "notes"
 >;
 
 export async function listWorkoutsWithSets(

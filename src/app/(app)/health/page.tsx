@@ -7,6 +7,7 @@ import { MealForm } from "./meal-form";
 import { MealList } from "./meal-list";
 import { WorkoutForm } from "./workout-form";
 import { WorkoutCard } from "./workout-card";
+import { WorkoutChat } from "./workout-chat";
 
 export default async function HealthPage() {
   const supabase = await createClient();
@@ -29,6 +30,10 @@ export default async function HealthPage() {
 
       <Section title="Log a workout">
         <WorkoutForm />
+      </Section>
+
+      <Section title="Ask your coach">
+        <WorkoutChat />
       </Section>
 
       <Section title="Recent workouts">

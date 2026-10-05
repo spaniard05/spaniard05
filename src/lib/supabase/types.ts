@@ -67,6 +67,7 @@ export interface Database {
           reps: number | null;
           weight: number | null;
           set_order: number;
+          notes: string | null;
           created_at: string;
         };
         Insert: {
@@ -77,6 +78,7 @@ export interface Database {
           reps?: number | null;
           weight?: number | null;
           set_order?: number;
+          notes?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["workout_sets"]["Insert"]>;

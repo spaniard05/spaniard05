@@ -22,16 +22,21 @@ export function WorkoutCard({ workout }: { workout: WorkoutWithSets }) {
       {sets.length > 0 && (
         <ul className="mt-2 divide-y divide-slate-100 text-sm">
           {sets.map((set) => (
-            <li key={set.id} className="flex items-center justify-between py-1.5">
-              <span className="text-slate-700">{set.exercise}</span>
-              <span className="text-slate-400">
-                {[
-                  set.reps != null ? `${set.reps} reps` : null,
-                  set.weight != null ? `${set.weight} lb` : null,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </span>
+            <li key={set.id} className="py-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-700">{set.exercise}</span>
+                <span className="text-slate-400">
+                  {[
+                    set.reps != null ? `${set.reps} reps` : null,
+                    set.weight != null ? `${set.weight} lb` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </span>
+              </div>
+              {set.notes && (
+                <p className="text-xs text-slate-400">{set.notes}</p>
+              )}
             </li>
           ))}
         </ul>

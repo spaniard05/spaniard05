@@ -3,10 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { requireUserAndClient } from "@/lib/auth/session";
 import { createMeal } from "@/lib/data/meals";
-import { createWorkout, createWorkoutSet } from "@/lib/data/workouts";
+import {
+  createWorkout,
+  createWorkoutSet,
+  listWorkoutsWithSets,
+} from "@/lib/data/workouts";
 import { parseOptionalNumber, parseOptionalText, requireText } from "@/lib/forms";
 import { todayDateString } from "@/lib/date";
 import { estimateMealMacros } from "@/lib/ai/macros";
+import { askWorkoutCoach, type ChatTurn } from "@/lib/ai/workout-coach";
 import type { FormState } from "@/components/ui/action-form";
 
 function revalidateHealth() {
@@ -109,4 +114,14 @@ export async function addWorkoutSetAction(
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Couldn't save that set." };
   }
+}
+
+export async function askWorkoutCoachAction(
+  history: ChatTurn[],
+  message: string
+): Promise<string> {
+  const { supabase } = await requireUserAndClient();
+  const recentWorkouts = await listWorkoutsWithSets(supabase, 5);
+  const reply = await askWorkoutCoach(recentWorkouts, history, message);
+  return reply ?? "Couldn't reach the coach just now — try again in a bit.";
 }
