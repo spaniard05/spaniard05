@@ -89,3 +89,31 @@ export async function setTaskGoogleEventId(
 
   if (error) throw error;
 }
+
+export interface ImportedGoogleTask {
+  title: string;
+  due_at: string | null;
+  notes: string | null;
+  google_task_id: string;
+}
+
+/**
+ * Inserts one task imported from Google Tasks, skipping it if this exact
+ * Google task was already imported before (safe to re-run).
+ */
+export async function importGoogleTask(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  input: ImportedGoogleTask
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("tasks")
+    .upsert(
+      { ...input, user_id: userId, priority: "medium" },
+      { onConflict: "user_id,google_task_id", ignoreDuplicates: true }
+    )
+    .select("id");
+
+  if (error) throw error;
+  return (data?.length ?? 0) > 0;
+}

@@ -1,7 +1,12 @@
 import "server-only";
 import { googleClientId, googleClientSecret, googleRedirectUri } from "@/lib/env";
 
-const CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar.events";
+// calendar.events for two-way task/assignment sync; tasks.readonly for the
+// one-time "import my existing Google Tasks" action.
+const SCOPES = [
+  "https://www.googleapis.com/auth/calendar.events",
+  "https://www.googleapis.com/auth/tasks.readonly",
+].join(" ");
 const TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token";
 
 export function buildGoogleAuthUrl(state: string): string {
@@ -9,7 +14,7 @@ export function buildGoogleAuthUrl(state: string): string {
   url.searchParams.set("client_id", googleClientId());
   url.searchParams.set("redirect_uri", googleRedirectUri());
   url.searchParams.set("response_type", "code");
-  url.searchParams.set("scope", CALENDAR_SCOPE);
+  url.searchParams.set("scope", SCOPES);
   // offline + consent guarantees a refresh_token on every connect, not just
   // the very first time this Google account ever authorized this app.
   url.searchParams.set("access_type", "offline");

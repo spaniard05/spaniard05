@@ -139,6 +139,7 @@ export interface Database {
           recurring: string | null;
           notes: string | null;
           google_event_id: string | null;
+          google_task_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -151,6 +152,7 @@ export interface Database {
           recurring?: string | null;
           notes?: string | null;
           google_event_id?: string | null;
+          google_task_id?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["tasks"]["Insert"]>;
