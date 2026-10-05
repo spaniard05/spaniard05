@@ -65,10 +65,26 @@ export async function updateTaskStatus(
   supabase: TypedSupabaseClient,
   id: string,
   status: TaskStatus
+): Promise<Task> {
+  const { data, error } = await supabase
+    .from("tasks")
+    .update({ status })
+    .eq("id", id)
+    .select("*")
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function setTaskGoogleEventId(
+  supabase: TypedSupabaseClient,
+  id: string,
+  googleEventId: string | null
 ): Promise<void> {
   const { error } = await supabase
     .from("tasks")
-    .update({ status })
+    .update({ google_event_id: googleEventId })
     .eq("id", id);
 
   if (error) throw error;

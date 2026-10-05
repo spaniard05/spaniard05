@@ -4,7 +4,13 @@ import type { Database } from "@/lib/supabase/types";
 export type Meal = Database["public"]["Tables"]["meals"]["Row"];
 export type NewMeal = Pick<
   Database["public"]["Tables"]["meals"]["Insert"],
-  "description" | "calories" | "protein" | "carbs" | "fat" | "eaten_at"
+  | "description"
+  | "calories"
+  | "protein"
+  | "carbs"
+  | "fat"
+  | "macros_estimated"
+  | "eaten_at"
 >;
 
 export async function listMealsBetween(

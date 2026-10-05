@@ -19,6 +19,7 @@ export interface Database {
           protein: number | null;
           carbs: number | null;
           fat: number | null;
+          macros_estimated: boolean;
           eaten_at: string;
           created_at: string;
         };
@@ -30,6 +31,7 @@ export interface Database {
           protein?: number | null;
           carbs?: number | null;
           fat?: number | null;
+          macros_estimated?: boolean;
           eaten_at?: string;
           created_at?: string;
         };
@@ -109,6 +111,7 @@ export interface Database {
           due_at: string | null;
           status: AssignmentStatus;
           notes: string | null;
+          google_event_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -119,6 +122,7 @@ export interface Database {
           due_at?: string | null;
           status?: AssignmentStatus;
           notes?: string | null;
+          google_event_id?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["assignments"]["Insert"]>;
@@ -133,6 +137,7 @@ export interface Database {
           priority: TaskPriority;
           status: TaskStatus;
           recurring: string | null;
+          google_event_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -143,6 +148,7 @@ export interface Database {
           priority?: TaskPriority;
           status?: TaskStatus;
           recurring?: string | null;
+          google_event_id?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["tasks"]["Insert"]>;
@@ -168,6 +174,30 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["learn_items"]["Insert"]>;
+        Relationships: [];
+      };
+      google_calendar_connections: {
+        Row: {
+          id: string;
+          user_id: string;
+          access_token: string;
+          refresh_token: string;
+          token_expires_at: string;
+          calendar_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          access_token: string;
+          refresh_token: string;
+          token_expires_at: string;
+          calendar_id?: string;
+          created_at?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["google_calendar_connections"]["Insert"]
+        >;
         Relationships: [];
       };
     };

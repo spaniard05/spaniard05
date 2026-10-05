@@ -35,6 +35,11 @@ export function MealList({ meals }: { meals: Meal[] }) {
               ]
                 .filter(Boolean)
                 .join(" · ")}
+              {meal.macros_estimated && (
+                <span className="ml-1.5 rounded-full bg-brand-50 px-1.5 py-0.5 text-[10px] font-medium text-brand-600">
+                  AI estimate
+                </span>
+              )}
             </p>
           )}
         </li>
