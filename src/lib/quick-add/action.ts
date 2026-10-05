@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
-import { getCurrentUser } from "@/lib/auth/session";
+import { getCurrentUser, requireUserAndClient } from "@/lib/auth/session";
+import { organizeFreeText } from "@/lib/ai/chat-organizer";
 import {
   executeQuickAdd,
   QUICK_ADD_DESTINATIONS,
@@ -14,7 +14,24 @@ const REVALIDATE_PATHS: Record<QuickAddDestination, string[]> = {
   task: ["/today", "/tasks"],
   assignment: ["/today", "/school"],
   learn_item: ["/learn"],
+  workout: ["/today", "/health"],
 };
+
+const DESTINATION_NOUN: Record<QuickAddDestination, string> = {
+  meal: "meal",
+  task: "task",
+  assignment: "assignment",
+  learn_item: "learn item",
+  workout: "workout",
+};
+
+function revalidateAll(destinations: Iterable<QuickAddDestination>) {
+  const paths = new Set<string>();
+  for (const destination of destinations) {
+    for (const path of REVALIDATE_PATHS[destination]) paths.add(path);
+  }
+  for (const path of paths) revalidatePath(path);
+}
 
 export type QuickAddState = { error: string | null };
 
@@ -43,7 +60,7 @@ export async function quickAddAction(
   const courseId = formData.get("courseId");
 
   try {
-    const supabase = await createClient();
+    const { supabase } = await requireUserAndClient();
     await executeQuickAdd(
       supabase,
       user.id,
@@ -54,9 +71,59 @@ export async function quickAddAction(
     return { error: error instanceof Error ? error.message : "Couldn't save that." };
   }
 
-  for (const path of REVALIDATE_PATHS[destination as QuickAddDestination]) {
-    revalidatePath(path);
+  revalidateAll([destination as QuickAddDestination]);
+  return { error: null };
+}
+
+export type AiQuickAddState = { error: string | null; summary: string | null };
+
+export async function aiQuickAddAction(
+  _prevState: AiQuickAddState,
+  formData: FormData
+): Promise<AiQuickAddState> {
+  const text = String(formData.get("text") ?? "").trim();
+  if (!text) {
+    return { error: "Type something first.", summary: null };
   }
 
-  return { error: null };
+  const { user, supabase } = await requireUserAndClient();
+  const items = await organizeFreeText(text);
+
+  if (items.length === 0) {
+    return {
+      error: "Couldn't figure out where that goes — try the manual option, or rephrase.",
+      summary: null,
+    };
+  }
+
+  const created: QuickAddDestination[] = [];
+  for (const item of items) {
+    try {
+      await executeQuickAdd(supabase, user.id, item.destination, {
+        text: item.title,
+      });
+      created.push(item.destination);
+    } catch {
+      // Skip whatever failed; still report what succeeded.
+    }
+  }
+
+  if (created.length === 0) {
+    return { error: "Couldn't save that. Try again.", summary: null };
+  }
+
+  revalidateAll(created);
+
+  const counts = new Map<QuickAddDestination, number>();
+  for (const destination of created) {
+    counts.set(destination, (counts.get(destination) ?? 0) + 1);
+  }
+  const summary = Array.from(counts.entries())
+    .map(([destination, count]) => {
+      const noun = DESTINATION_NOUN[destination];
+      return `${count} ${noun}${count === 1 ? "" : "s"}`;
+    })
+    .join(", ");
+
+  return { error: null, summary: `Added ${summary}.` };
 }

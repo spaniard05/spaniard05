@@ -3,12 +3,15 @@ import { createMeal } from "@/lib/data/meals";
 import { createTask } from "@/lib/data/tasks";
 import { createAssignment } from "@/lib/data/assignments";
 import { createLearnItem } from "@/lib/data/learn-items";
+import { createWorkout } from "@/lib/data/workouts";
+import { todayDateString } from "@/lib/date";
 
 export const QUICK_ADD_DESTINATIONS = [
   "meal",
   "task",
   "assignment",
   "learn_item",
+  "workout",
 ] as const;
 
 export type QuickAddDestination = (typeof QUICK_ADD_DESTINATIONS)[number];
@@ -59,5 +62,10 @@ export async function executeQuickAdd(
     }
     case "learn_item":
       return createLearnItem(supabase, userId, { title: text });
+    case "workout":
+      return createWorkout(supabase, userId, {
+        title: text,
+        date: todayDateString(),
+      });
   }
 }
