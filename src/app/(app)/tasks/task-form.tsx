@@ -37,6 +37,12 @@ export function TaskForm() {
             placeholder="Recurring (optional, e.g. weekly)"
             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900"
           />
+          <textarea
+            name="notes"
+            placeholder="Notes (optional)"
+            rows={2}
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900"
+          />
           <button
             type="submit"
             disabled={pending}

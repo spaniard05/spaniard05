@@ -137,6 +137,7 @@ export interface Database {
           priority: TaskPriority;
           status: TaskStatus;
           recurring: string | null;
+          notes: string | null;
           google_event_id: string | null;
           created_at: string;
         };
@@ -148,6 +149,7 @@ export interface Database {
           priority?: TaskPriority;
           status?: TaskStatus;
           recurring?: string | null;
+          notes?: string | null;
           google_event_id?: string | null;
           created_at?: string;
         };

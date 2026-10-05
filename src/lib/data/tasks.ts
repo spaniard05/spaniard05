@@ -4,7 +4,7 @@ import type { Database, TaskStatus } from "@/lib/supabase/types";
 export type Task = Database["public"]["Tables"]["tasks"]["Row"];
 export type NewTask = Pick<
   Database["public"]["Tables"]["tasks"]["Insert"],
-  "title" | "due_at" | "priority" | "recurring"
+  "title" | "due_at" | "priority" | "recurring" | "notes"
 >;
 
 const PRIORITY_RANK: Record<Task["priority"], number> = {

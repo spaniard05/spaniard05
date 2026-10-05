@@ -31,6 +31,7 @@ export async function addTaskAction(
       due_at: parseOptionalIso(formData.get("dueAt")),
       priority: parsePriority(formData.get("priority")),
       recurring: parseOptionalText(formData.get("recurring")),
+      notes: parseOptionalText(formData.get("notes")),
     });
 
     revalidateTasks();
