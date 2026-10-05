@@ -34,6 +34,7 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["meals"]["Insert"]>;
+        Relationships: [];
       };
       workouts: {
         Row: {
@@ -53,6 +54,7 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["workouts"]["Insert"]>;
+        Relationships: [];
       };
       workout_sets: {
         Row: {
@@ -76,6 +78,7 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["workout_sets"]["Insert"]>;
+        Relationships: [];
       };
       courses: {
         Row: {
@@ -95,6 +98,7 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["courses"]["Insert"]>;
+        Relationships: [];
       };
       assignments: {
         Row: {
@@ -118,6 +122,7 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["assignments"]["Insert"]>;
+        Relationships: [];
       };
       tasks: {
         Row: {
@@ -141,6 +146,7 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["tasks"]["Insert"]>;
+        Relationships: [];
       };
       learn_items: {
         Row: {
@@ -162,7 +168,10 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["learn_items"]["Insert"]>;
+        Relationships: [];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
   };
 }

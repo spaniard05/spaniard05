@@ -11,3 +11,16 @@ export async function getCurrentUser() {
   } = await supabase.auth.getUser();
   return user;
 }
+
+// Convenience for server actions: a signed-in user plus a ready client, or
+// a thrown error if the session has gone away mid-action.
+export async function requireUserAndClient() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("You need to sign in again.");
+  }
+  return { user, supabase };
+}
