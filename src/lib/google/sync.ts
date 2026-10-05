@@ -26,7 +26,10 @@ export async function syncTaskToCalendar(
     if (!conn) return;
 
     const shouldHaveEvent =
-      task.due_at != null && task.status !== "done" && task.archived_at == null;
+      task.list === "tasks" &&
+      task.due_at != null &&
+      task.status !== "done" &&
+      task.archived_at == null;
 
     if (!shouldHaveEvent) {
       if (task.google_event_id) {

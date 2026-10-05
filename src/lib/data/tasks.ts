@@ -1,10 +1,10 @@
 import type { TypedSupabaseClient } from "./client";
-import type { Database, TaskStatus } from "@/lib/supabase/types";
+import type { Database, TaskList, TaskStatus } from "@/lib/supabase/types";
 
 export type Task = Database["public"]["Tables"]["tasks"]["Row"];
 export type NewTask = Pick<
   Database["public"]["Tables"]["tasks"]["Insert"],
-  "title" | "due_at" | "priority" | "recurring" | "notes"
+  "title" | "due_at" | "priority" | "recurring" | "notes" | "list"
 >;
 
 const PRIORITY_RANK: Record<Task["priority"], number> = {
@@ -23,11 +23,13 @@ export function sortTasks(tasks: Task[]): Task[] {
 }
 
 export async function listTasks(
-  supabase: TypedSupabaseClient
+  supabase: TypedSupabaseClient,
+  list: TaskList = "tasks"
 ): Promise<Task[]> {
   const { data, error } = await supabase
     .from("tasks")
     .select("*")
+    .eq("list", list)
     .is("archived_at", null);
 
   if (error) throw error;
@@ -35,11 +37,13 @@ export async function listTasks(
 }
 
 export async function listArchivedTasks(
-  supabase: TypedSupabaseClient
+  supabase: TypedSupabaseClient,
+  list: TaskList = "tasks"
 ): Promise<Task[]> {
   const { data, error } = await supabase
     .from("tasks")
     .select("*")
+    .eq("list", list)
     .not("archived_at", "is", null)
     .order("archived_at", { ascending: false });
 
@@ -54,6 +58,7 @@ export async function listOpenTasksDueBefore(
   const { data, error } = await supabase
     .from("tasks")
     .select("*")
+    .eq("list", "tasks")
     .neq("status", "done")
     .is("archived_at", null)
     .not("due_at", "is", null)

@@ -5,6 +5,7 @@
 export type AssignmentStatus = "todo" | "in_progress" | "done";
 export type TaskStatus = "todo" | "in_progress" | "done";
 export type TaskPriority = "low" | "medium" | "high";
+export type TaskList = "tasks" | "groceries" | "shopping";
 export type LearnStatus = "someday" | "in_progress" | "done";
 
 export interface Database {
@@ -143,6 +144,7 @@ export interface Database {
           google_event_id: string | null;
           google_task_id: string | null;
           archived_at: string | null;
+          list: TaskList;
           created_at: string;
         };
         Insert: {
@@ -157,6 +159,7 @@ export interface Database {
           google_event_id?: string | null;
           google_task_id?: string | null;
           archived_at?: string | null;
+          list?: TaskList;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["tasks"]["Insert"]>;

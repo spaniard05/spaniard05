@@ -22,6 +22,7 @@ export function TaskRow({
 }) {
   const done = task.status === "done";
   const overdue = !done && isOverdue(task.due_at);
+  const showMeta = task.list === "tasks";
   const [isPending, startTransition] = useTransition();
 
   function handleDelete() {
@@ -46,21 +47,23 @@ export function TaskRow({
           >
             {task.title}
           </p>
-          <div className="mt-0.5 flex items-center gap-1.5">
-            <span
-              className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${PRIORITY_STYLES[task.priority]}`}
-            >
-              {task.priority}
-            </span>
-            {task.due_at && (
-              <span className={`text-xs ${overdue ? "text-red-600" : "text-slate-400"}`}>
-                {formatDueDate(task.due_at)}
+          {showMeta && (
+            <div className="mt-0.5 flex items-center gap-1.5">
+              <span
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${PRIORITY_STYLES[task.priority]}`}
+              >
+                {task.priority}
               </span>
-            )}
-            {task.recurring && (
-              <span className="text-xs text-slate-400">· {task.recurring}</span>
-            )}
-          </div>
+              {task.due_at && (
+                <span className={`text-xs ${overdue ? "text-red-600" : "text-slate-400"}`}>
+                  {formatDueDate(task.due_at)}
+                </span>
+              )}
+              {task.recurring && (
+                <span className="text-xs text-slate-400">· {task.recurring}</span>
+              )}
+            </div>
+          )}
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <button

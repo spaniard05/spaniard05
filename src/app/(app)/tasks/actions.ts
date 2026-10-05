@@ -10,7 +10,7 @@ import {
 } from "@/lib/data/tasks";
 import { parseOptionalIso, parseOptionalText, requireText } from "@/lib/forms";
 import { removeCalendarEvent, syncTaskToCalendar } from "@/lib/google/sync";
-import type { TaskPriority, TaskStatus } from "@/lib/supabase/types";
+import type { TaskList, TaskPriority, TaskStatus } from "@/lib/supabase/types";
 import type { FormState } from "@/components/ui/action-form";
 
 function revalidateTasks() {
@@ -24,6 +24,10 @@ function parsePriority(value: FormDataEntryValue | null): TaskPriority {
     : "medium";
 }
 
+function parseList(value: FormDataEntryValue | null): TaskList {
+  return value === "groceries" || value === "shopping" ? value : "tasks";
+}
+
 export async function addTaskAction(
   _prev: FormState,
   formData: FormData
@@ -31,9 +35,11 @@ export async function addTaskAction(
   try {
     const { user, supabase } = await requireUserAndClient();
     const title = requireText(formData.get("title"));
+    const list = parseList(formData.get("list"));
 
     const task = await createTask(supabase, user.id, {
       title,
+      list,
       due_at: parseOptionalIso(formData.get("dueAt")),
       priority: parsePriority(formData.get("priority")),
       recurring: parseOptionalText(formData.get("recurring")),
