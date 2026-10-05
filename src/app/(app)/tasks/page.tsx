@@ -1,12 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
-import { listTasks } from "@/lib/data/tasks";
+import { listArchivedTasks, listTasks } from "@/lib/data/tasks";
 import { Section } from "@/components/ui/section";
 import { TaskForm } from "./task-form";
 import { TaskList } from "./task-list";
 
 export default async function TasksPage() {
   const supabase = await createClient();
-  const tasks = await listTasks(supabase);
+  const [tasks, archivedTasks] = await Promise.all([
+    listTasks(supabase),
+    listArchivedTasks(supabase),
+  ]);
   const open = tasks.filter((t) => t.status !== "done");
   const done = tasks.filter((t) => t.status === "done");
 
@@ -26,6 +29,15 @@ export default async function TasksPage() {
         <Section title="Done">
           <TaskList tasks={done} />
         </Section>
+      )}
+
+      {archivedTasks.length > 0 && (
+        <details className="mb-6">
+          <summary className="mb-2 cursor-pointer text-sm font-semibold uppercase tracking-wide text-slate-500">
+            Hidden ({archivedTasks.length})
+          </summary>
+          <TaskList tasks={archivedTasks} archived />
+        </details>
       )}
     </div>
   );

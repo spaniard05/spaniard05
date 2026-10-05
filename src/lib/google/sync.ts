@@ -25,7 +25,8 @@ export async function syncTaskToCalendar(
     const conn = await getValidGoogleAccessToken(supabase, userId);
     if (!conn) return;
 
-    const shouldHaveEvent = task.due_at != null && task.status !== "done";
+    const shouldHaveEvent =
+      task.due_at != null && task.status !== "done" && task.archived_at == null;
 
     if (!shouldHaveEvent) {
       if (task.google_event_id) {
@@ -62,6 +63,21 @@ export async function syncTaskToCalendar(
     }
   } catch {
     // Best-effort sync — nothing to surface to the user here.
+  }
+}
+
+/** Best-effort cleanup of a dangling calendar event after its task/assignment row is deleted. */
+export async function removeCalendarEvent(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  googleEventId: string
+): Promise<void> {
+  try {
+    const conn = await getValidGoogleAccessToken(supabase, userId);
+    if (!conn) return;
+    await deleteCalendarEvent(conn.accessToken, conn.calendarId, googleEventId);
+  } catch {
+    // Best-effort — the row is already gone either way.
   }
 }
 

@@ -2,9 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { requireUserAndClient } from "@/lib/auth/session";
-import { createTask, updateTaskStatus } from "@/lib/data/tasks";
+import {
+  createTask,
+  deleteTask,
+  setTaskArchived,
+  updateTaskStatus,
+} from "@/lib/data/tasks";
 import { parseOptionalIso, parseOptionalText, requireText } from "@/lib/forms";
-import { syncTaskToCalendar } from "@/lib/google/sync";
+import { removeCalendarEvent, syncTaskToCalendar } from "@/lib/google/sync";
 import type { TaskPriority, TaskStatus } from "@/lib/supabase/types";
 import type { FormState } from "@/components/ui/action-form";
 
@@ -47,5 +52,22 @@ export async function setTaskStatus(id: string, status: TaskStatus) {
   const { user, supabase } = await requireUserAndClient();
   const task = await updateTaskStatus(supabase, id, status);
   await syncTaskToCalendar(supabase, user.id, task);
+  revalidateTasks();
+}
+
+export async function setTaskArchivedAction(id: string, archived: boolean) {
+  const { user, supabase } = await requireUserAndClient();
+  const task = await setTaskArchived(supabase, id, archived);
+  // Hidden tasks shouldn't keep a calendar entry; unhiding recreates one if due.
+  await syncTaskToCalendar(supabase, user.id, task);
+  revalidateTasks();
+}
+
+export async function deleteTaskAction(id: string) {
+  const { user, supabase } = await requireUserAndClient();
+  const deleted = await deleteTask(supabase, id);
+  if (deleted?.google_event_id) {
+    await removeCalendarEvent(supabase, user.id, deleted.google_event_id);
+  }
   revalidateTasks();
 }

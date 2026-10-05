@@ -70,6 +70,25 @@ export function PlusIcon({ className }: IconProps) {
   );
 }
 
+export function TrashIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <path d="M4 7h16M9 7V4.5h6V7M6 7l1 13h10l1-13" />
+      <path d="M10 11v6M14 11v6" />
+    </svg>
+  );
+}
+
+export function EyeOffIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <path d="M3 3l18 18" />
+      <path d="M10.6 5.2A10.6 10.6 0 0 1 12 5c5 0 8.8 3.3 10.5 7-0.6 1.3-1.5 2.6-2.6 3.7M6.6 6.6C4.6 8 3 9.9 1.5 12c1.7 3.7 5.5 7 10.5 7 1.3 0 2.6-0.2 3.7-0.6" />
+      <path d="M9.9 10a3 3 0 0 0 4.1 4.1" />
+    </svg>
+  );
+}
+
 export function SettingsIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className} aria-hidden="true">

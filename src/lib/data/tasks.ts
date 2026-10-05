@@ -25,10 +25,26 @@ export function sortTasks(tasks: Task[]): Task[] {
 export async function listTasks(
   supabase: TypedSupabaseClient
 ): Promise<Task[]> {
-  const { data, error } = await supabase.from("tasks").select("*");
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .is("archived_at", null);
 
   if (error) throw error;
   return sortTasks(data);
+}
+
+export async function listArchivedTasks(
+  supabase: TypedSupabaseClient
+): Promise<Task[]> {
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .not("archived_at", "is", null)
+    .order("archived_at", { ascending: false });
+
+  if (error) throw error;
+  return data;
 }
 
 export async function listOpenTasksDueBefore(
@@ -39,6 +55,7 @@ export async function listOpenTasksDueBefore(
     .from("tasks")
     .select("*")
     .neq("status", "done")
+    .is("archived_at", null)
     .not("due_at", "is", null)
     .lte("due_at", beforeIso);
 
@@ -72,6 +89,38 @@ export async function updateTaskStatus(
     .eq("id", id)
     .select("*")
     .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function setTaskArchived(
+  supabase: TypedSupabaseClient,
+  id: string,
+  archived: boolean
+): Promise<Task> {
+  const { data, error } = await supabase
+    .from("tasks")
+    .update({ archived_at: archived ? new Date().toISOString() : null })
+    .eq("id", id)
+    .select("*")
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/** Deletes a task and returns the row that was deleted (null if it was already gone). */
+export async function deleteTask(
+  supabase: TypedSupabaseClient,
+  id: string
+): Promise<Task | null> {
+  const { data, error } = await supabase
+    .from("tasks")
+    .delete()
+    .eq("id", id)
+    .select("*")
+    .maybeSingle();
 
   if (error) throw error;
   return data;
