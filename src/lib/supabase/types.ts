@@ -1,0 +1,168 @@
+// Hand-written types mirroring supabase/migrations/0001_init.sql.
+// If the schema changes, update this file alongside the migration.
+// (A later phase can replace this with `supabase gen types typescript`.)
+
+export type AssignmentStatus = "todo" | "in_progress" | "done";
+export type TaskStatus = "todo" | "in_progress" | "done";
+export type TaskPriority = "low" | "medium" | "high";
+export type LearnStatus = "someday" | "in_progress" | "done";
+
+export interface Database {
+  public: {
+    Tables: {
+      meals: {
+        Row: {
+          id: string;
+          user_id: string;
+          description: string;
+          calories: number | null;
+          protein: number | null;
+          carbs: number | null;
+          fat: number | null;
+          eaten_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          description: string;
+          calories?: number | null;
+          protein?: number | null;
+          carbs?: number | null;
+          fat?: number | null;
+          eaten_at?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["meals"]["Insert"]>;
+      };
+      workouts: {
+        Row: {
+          id: string;
+          user_id: string;
+          date: string;
+          title: string;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          date?: string;
+          title: string;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["workouts"]["Insert"]>;
+      };
+      workout_sets: {
+        Row: {
+          id: string;
+          user_id: string;
+          workout_id: string;
+          exercise: string;
+          reps: number | null;
+          weight: number | null;
+          set_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          workout_id: string;
+          exercise: string;
+          reps?: number | null;
+          weight?: number | null;
+          set_order?: number;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["workout_sets"]["Insert"]>;
+      };
+      courses: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          code: string | null;
+          semester: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          code?: string | null;
+          semester?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["courses"]["Insert"]>;
+      };
+      assignments: {
+        Row: {
+          id: string;
+          user_id: string;
+          course_id: string;
+          title: string;
+          due_at: string | null;
+          status: AssignmentStatus;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          course_id: string;
+          title: string;
+          due_at?: string | null;
+          status?: AssignmentStatus;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["assignments"]["Insert"]>;
+      };
+      tasks: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          due_at: string | null;
+          priority: TaskPriority;
+          status: TaskStatus;
+          recurring: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          due_at?: string | null;
+          priority?: TaskPriority;
+          status?: TaskStatus;
+          recurring?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["tasks"]["Insert"]>;
+      };
+      learn_items: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          status: LearnStatus;
+          resource_url: string | null;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          status?: LearnStatus;
+          resource_url?: string | null;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["learn_items"]["Insert"]>;
+      };
+    };
+  };
+}
