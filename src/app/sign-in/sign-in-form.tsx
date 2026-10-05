@@ -15,26 +15,35 @@ export function SignInForm({ redirectTo }: { redirectTo?: string }) {
     setStatus("sending");
     setErrorMessage(null);
 
-    const supabase = createClient();
-    const callbackUrl = new URL("/auth/callback", window.location.origin);
-    if (redirectTo) {
-      callbackUrl.searchParams.set("redirectTo", redirectTo);
-    }
+    try {
+      const supabase = createClient();
+      const callbackUrl = new URL("/auth/callback", window.location.origin);
+      if (redirectTo) {
+        callbackUrl.searchParams.set("redirectTo", redirectTo);
+      }
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: callbackUrl.toString(),
-      },
-    });
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: callbackUrl.toString(),
+        },
+      });
 
-    if (error) {
+      if (error) {
+        setStatus("error");
+        setErrorMessage(error.message);
+        return;
+      }
+
+      setStatus("sent");
+    } catch (err) {
       setStatus("error");
-      setErrorMessage(error.message);
-      return;
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : "Couldn't reach Supabase. Check your connection and try again."
+      );
     }
-
-    setStatus("sent");
   }
 
   if (status === "sent") {
